@@ -18,9 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const db = firebase.database();
     const ucapanRef = db.ref('ucapan');
 
-    let hadirCount = 0;
-    let tidakHadirCount = 0;
-
     const bgMusic = document.getElementById('bgMusic');
     const musicToggle = document.getElementById('musicToggle');
     const musicIcon = document.getElementById('musicIcon');
@@ -146,16 +143,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    const ucapanData = [];
-
-    function updateStats() {
-        document.querySelector('.ucapan-stats span').textContent = `${hadirCount} Hadir • ${tidakHadirCount} Tidak Hadir`;
-    }
-
-    function renderUcapan() {
+    function renderUcapan(items) {
         const list = document.getElementById('ucapanList');
         if (!list) return;
-        list.innerHTML = ucapanData.map(item => `
+        list.innerHTML = items.map(item => `
             <div class="ucapan-item">
                 <div class="ucapan-item-header">
                     <span class="ucapan-item-name">${item.nama}</span>
@@ -164,25 +155,92 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="ucapan-item-text">${item.ucapan}</p>
             </div>
         `).join('');
-        updateStats();
+        updateStats(items);
     }
 
-    ucapanRef.on('value', (snapshot) => {
-        const data = snapshot.val();
-        ucapanData.length = 0;
-        hadirCount = 0;
-        tidakHadirCount = 0;
+    function updateStats(items) {
+        const hadir = items.filter(i => i.kehadiran === 'hadir').length;
+        const tidak = items.filter(i => i.kehadiran === 'tidak').length;
+        const statsEl = document.querySelector('.ucapan-stats span');
+        if (statsEl) statsEl.textContent = `${hadir} Hadir • ${tidak} Tidak Hadir`;
+    }
 
-        if (data) {
-            Object.values(data).forEach(item => {
-                ucapanData.push(item);
-                if (item.kehadiran === 'hadir') hadirCount++;
-                else tidakHadirCount++;
+    let allLoadedUcapan = [];
+    let currentLimit = 10;
+    let isLoadingMore = false;
+
+    function getUcapanLimit(limit) {
+        return ucapanRef.orderByKey().limitToLast(limit).once('value');
+    }
+
+    async function loadInitialUcapan() {
+        try {
+            const snapshot = await getUcapanLimit(currentLimit);
+            allLoadedUcapan = [];
+            snapshot.forEach((childSnapshot) => {
+                allLoadedUcapan.push(childSnapshot.val());
             });
+            allLoadedUcapan.reverse();
+            renderUcapan(allLoadedUcapan);
+            updateLoadMoreButton(allLoadedUcapan.length, currentLimit);
+        } catch (error) {
+            console.error('Error loading ucapan:', error);
         }
+    }
 
-        renderUcapan();
+    async function loadMoreUcapan() {
+        if (isLoadingMore) return;
+        isLoadingMore = true;
+
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (loadMoreBtn) loadMoreBtn.textContent = 'Memuat...';
+
+        try {
+            currentLimit += 10;
+            const snapshot = await getUcapanLimit(currentLimit);
+            allLoadedUcapan = [];
+            snapshot.forEach((childSnapshot) => {
+                allLoadedUcapan.push(childSnapshot.val());
+            });
+            allLoadedUcapan.reverse();
+            renderUcapan(allLoadedUcapan);
+            updateLoadMoreButton(allLoadedUcapan.length, currentLimit);
+        } catch (error) {
+            console.error('Error loading more ucapan:', error);
+        } finally {
+            isLoadingMore = false;
+            if (loadMoreBtn) loadMoreBtn.textContent = 'Tampilkan Lebih Banyak';
+        }
+    }
+
+    function updateLoadMoreButton(totalLoaded, limit) {
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (!loadMoreBtn) return;
+
+        if (totalLoaded < limit) {
+            loadMoreBtn.style.display = 'none';
+        } else {
+            loadMoreBtn.style.display = 'inline-block';
+        }
+    }
+
+    ucapanRef.on('child_added', (snapshot) => {
+        const newItem = snapshot.val();
+        const exists = allLoadedUcapan.some(
+            item => item.nama === newItem.nama && item.ucapan === newItem.ucapan && item.waktu === newItem.waktu
+        );
+        if (!exists) {
+            allLoadedUcapan.unshift(newItem);
+            renderUcapan(allLoadedUcapan);
+        }
     });
+
+    loadInitialUcapan();
+
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', loadMoreUcapan);
+    }
 
     const kirimUcapanBtn = document.getElementById('kirimUcapan');
     if (kirimUcapanBtn) {
