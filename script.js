@@ -3,6 +3,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const sections = ['bismillah', 'mempelai', 'countdown', 'acara', 'doa', 'galeri', 'lovestory', 'gift', 'ucapan'];
     let currentIndex = 0;
 
+    const firebaseConfig = {
+        apiKey: "AIzaSyDQoiLK-DZ49VO-p0g_U9Vk1WHH4ELOOcM",
+        authDomain: "wedding-indri-anggi.firebaseapp.com",
+        databaseURL: "https://wedding-indri-anggi-default-rtdb.firebaseio.com",
+        projectId: "wedding-indri-anggi",
+        storageBucket: "wedding-indri-anggi.firebasestorage.app",
+        messagingSenderId: "673352613282",
+        appId: "1:673352613282:web:41c99b7e0718851ac846fb",
+        measurementId: "G-BYLHTMFHVT"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const ucapanRef = db.ref('ucapan');
+
+    let hadirCount = 0;
+    let tidakHadirCount = 0;
+
     const bgMusic = document.getElementById('bgMusic');
     const musicToggle = document.getElementById('musicToggle');
     const musicIcon = document.getElementById('musicIcon');
@@ -139,8 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const ucapanData = [];
-    let hadirCount = 0;
-    let tidakHadirCount = 0;
 
     function updateStats() {
         document.querySelector('.ucapan-stats span').textContent = `${hadirCount} Hadir • ${tidakHadirCount} Tidak Hadir`;
@@ -161,7 +177,22 @@ document.addEventListener('DOMContentLoaded', () => {
         updateStats();
     }
 
-    renderUcapan();
+    ucapanRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        ucapanData.length = 0;
+        hadirCount = 0;
+        tidakHadirCount = 0;
+
+        if (data) {
+            Object.values(data).forEach(item => {
+                ucapanData.push(item);
+                if (item.kehadiran === 'hadir') hadirCount++;
+                else tidakHadirCount++;
+            });
+        }
+
+        renderUcapan();
+    });
 
     const kirimUcapanBtn = document.getElementById('kirimUcapan');
     if (kirimUcapanBtn) {
@@ -177,17 +208,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const kehadiran = kehadiranRadio ? kehadiranRadio.value : 'hadir';
 
-            if (kehadiran === 'hadir') hadirCount++;
-            else tidakHadirCount++;
-
-            ucapanData.unshift({
+            const newUcapan = {
                 nama,
                 kehadiran,
                 ucapan,
                 waktu: 'Baru saja'
-            });
+            };
 
-            renderUcapan();
+            ucapanRef.push(newUcapan);
+
             document.getElementById('nama').value = '';
             document.getElementById('ucapanText').value = '';
             const checkedRadio = document.querySelector('input[name="kehadiran"]:checked');
