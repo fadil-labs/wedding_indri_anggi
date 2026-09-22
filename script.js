@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('no-scroll');
-    const sections = ['bismillah', 'mempelai', 'countdown', 'acara', 'doa', 'galeri', 'lovestory', 'gift', 'ucapan'];
+    const sections = ['bismillah', 'mempelai', 'countdown', 'acara', 'doa', 'galeri', 'lovestory', 'ucapan'];
     let currentIndex = 0;
 
     const firebaseConfig = {
@@ -129,16 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setInterval(updateCountdown, 1000);
     updateCountdown();
-
-    const showGiftBtn = document.getElementById('showGiftBtn');
-    const giftDetails = document.getElementById('giftDetails');
-
-    if (showGiftBtn && giftDetails) {
-        showGiftBtn.addEventListener('click', () => {
-            giftDetails.classList.toggle('hidden');
-            showGiftBtn.textContent = giftDetails.classList.contains('hidden') ? 'Lihat Rekening' : 'Tutup';
-        });
-    }
 
     document.querySelectorAll('.btn-copy').forEach(btn => {
         btn.addEventListener('click', async () => {

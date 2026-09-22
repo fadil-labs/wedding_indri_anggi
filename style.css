@@ -160,24 +160,6 @@ a {
     background: var(--gold-dark);
 }
 
-.btn-gift {
-    display: inline-block;
-    padding: 12px 30px;
-    background: var(--gold);
-    color: var(--white);
-    border: none;
-    border-radius: 50px;
-    font-family: var(--font-body);
-    font-size: 1rem;
-    cursor: pointer;
-    transition: var(--transition);
-    margin-top: 20px;
-}
-
-.btn-gift:hover {
-    background: var(--gold-dark);
-}
-
 .btn-copy {
     display: inline-block;
     padding: 8px 18px;
@@ -278,6 +260,21 @@ a {
     color: var(--gold-light);
     margin-bottom: 40px;
     letter-spacing: 3px;
+}
+
+.hero-parents {
+    font-family: var(--font-body);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9rem;
+    line-height: 1.8;
+    margin-bottom: 30px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hero-parents p {
+    margin: 2px 0;
 }
 
 
@@ -673,62 +670,6 @@ a {
     color: var(--gold);
     margin-top: 30px;
     line-height: 1.6;
-}
-
-
-.gift-section {
-    background: var(--cream);
-    text-align: center;
-}
-
-.gift-intro {
-    font-size: 0.95rem;
-    color: #666;
-    line-height: 1.8;
-    max-width: 600px;
-    margin: 0 auto 20px;
-}
-
-.gift-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 25px;
-    max-width: 700px;
-    margin: 30px auto 0;
-}
-
-.gift-card {
-    background: var(--white);
-    padding: 30px 25px;
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    border: 1px solid rgba(197, 160, 89, 0.2);
-    text-align: center;
-}
-
-.bank-logo img {
-    max-height: 50px;
-    margin: 0 auto 15px;
-}
-
-.gift-card h4 {
-    font-family: var(--font-display);
-    color: var(--dark-green);
-    margin-bottom: 10px;
-    font-size: 1.1rem;
-}
-
-.gift-card .rekening {
-    font-size: 1rem;
-    color: var(--dark);
-    font-weight: 600;
-    margin-bottom: 5px;
-}
-
-.gift-card .atas-nama {
-    font-size: 0.85rem;
-    color: #777;
-    margin-bottom: 10px;
 }
 
 
